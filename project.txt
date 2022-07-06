@@ -1,0 +1,37 @@
+Open app
+  -inquirer
+    * view all departments
+      - SELECT * FROM
+    * view all roles
+      - SELECT * FROM
+    * view all employees
+      - SELECT * FROM
+    * add a department
+      - INSERT
+    * add a role
+      - INSERT
+    * add an employee
+      - INSERT
+    * update an employee role
+      - UPDATE WHERE id = :id
+
+departments
+| department_name | id |
+
+roles
+| job_title | id | department_name | salary |
+
+employees
+| id | first_name | last_name | job_title | department_name | salary | manager |
+
+add department
+  - req department_name
+
+add role
+  - req role name, salary, department_name
+
+add employee
+  - req first_name, last_name, role, manager
+
+update employee
+  - select employee and update role
