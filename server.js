@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('./db/connection');
 const apiRoutes = require('./routes/apiRoutes');
+const inquirer = require('inquirer')
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -30,3 +31,14 @@ db.connect((err) => {
 		console.log(`Server running on port ${PORT}`);
 	});
 });
+
+inquirer
+	.prompt([
+		{
+			type: 'list',
+			name: 'tasks',
+			message: 'What would you like to do?',
+			choices: ['View All Employees', 'Add Employee', 'Update Employee Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department'],
+		},
+	])
+	.then((answers) => console.log(answers));
