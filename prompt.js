@@ -8,20 +8,20 @@ function queryAllEmployees() {
 		.promise()
 		.query(
 			`SELECT
-                employeesTableA.id AS id,
-                employeesTableA.first_name AS first_name,
-                employeesTableA.last_name AS last_name,
-                roles.title AS title,
-                departments.name AS department,
-                roles.salary AS salary,
-                CONCAT_WS(' ', employeesTableB.first_name, employeesTableB.last_name) AS manager
-               FROM employees AS employeesTableA
-               JOIN roles
-               ON employeesTableA.role_id = roles.id
-               JOIN departments
-               ON roles.department_id = departments.id
-               LEFT JOIN employees AS employeesTableB
-               ON (employeesTableA.manager_id = employeesTableB.id)`
+        employeesTableA.id AS id,
+        employeesTableA.first_name AS first_name,
+        employeesTableA.last_name AS last_name,
+        roles.title AS title,
+        departments.name AS department,
+        roles.salary AS salary,
+        CONCAT_WS(' ', employeesTableB.first_name, employeesTableB.last_name) AS manager
+        FROM employees AS employeesTableA
+        JOIN roles
+        ON employeesTableA.role_id = roles.id
+        JOIN departments
+        ON roles.department_id = departments.id
+        LEFT JOIN employees AS employeesTableB
+        ON (employeesTableA.manager_id = employeesTableB.id)`
 		)
 		.then((response) => {
 			result = cTable.getTable(response[0]);
@@ -53,10 +53,14 @@ function queryAllRoles() {
 	return db
 		.promise()
 		.query(
-			`SELECT roles.id AS role_id, roles.title AS role_title, roles.salary AS role_salary, departments.name AS department_name
-               FROM roles
-               JOIN departments
-               ON roles.department_id = departments.id`
+			`SELECT
+      roles.id AS role_id,
+      roles.title AS role_title,
+      roles.salary AS role_salary,
+      departments.name AS department_name
+      FROM roles
+      JOIN departments
+      ON roles.department_id = departments.id`
 		)
 		.then((response) => {
 			result = cTable.getTable(response[0]);
@@ -95,6 +99,14 @@ function postEmployee(first_name, last_name, role_id, manager_id) {
 	const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id)
                VALUES (?, ?, ?, ?)`;
 	const params = [first_name, last_name, role_id, manager_id];
+	db.query(sql, params);
+}
+
+function updateEmployee(id, role_id) {
+	const sql = `UPDATE employees
+               SET role_id = ?
+               WHERE id = ?`;
+	const params = [role_id, id];
 	db.query(sql, params);
 }
 
@@ -150,10 +162,38 @@ async function handleAddEmployee() {
 		.then(() => chooseTask());
 }
 
-// TODO convert
-// TODO add PUT
-handleUpdateEmployeeRole = () => {
+// * converted
+async function handleUpdateEmployeeRole() {
 	console.log(`handleUpdateEmployeeRole`);
+  let employees = []
+  let roles = []
+
+  employees = await queryEmployeesList()
+  roles = await queryRolesList();
+
+  inquirer
+    .prompt([
+      {
+        type: 'list',
+        name: 'employee',
+        message: 'Which employee would you like to edit?',
+        choices: employees,
+      },
+      {
+				type: 'list',
+				name: 'role',
+				message: `What is the employee's new role?`,
+				choices: roles,
+			},
+    ])
+    .then((answer) => {
+      const employeeIndex = employees.findIndex((element) => element === answer.employee)
+      employee_id = employeeIndex + 1
+      const roleIndex = roles.findIndex((element) => element === answer.role);
+			role_id = roleIndex + 1;
+      updateEmployee(employee_id, role_id)
+    })
+    .then(() => chooseTask())
 };
 
 // * converted
