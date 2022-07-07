@@ -84,6 +84,20 @@ function queryAllDepartments() {
 		});
 }
 
+function postRole(title, salary, department_id) {
+	const sql = `INSERT INTO roles (title, salary, department_id)
+               VALUES (?, ?, ?)`;
+	const params = [title, salary, department_id];
+	db.query(sql, params);
+}
+
+function postEmployee(first_name, last_name, role_id, manager_id) {
+	const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id)
+               VALUES (?, ?, ?, ?)`;
+	const params = [first_name, last_name, role_id, manager_id];
+	db.query(sql, params);
+}
+
 // ASYNC FUNCTIONS ========== ========== ========== ========= ==========
 // * converted
 async function handleViewAllEmployees() {
@@ -93,7 +107,6 @@ async function handleViewAllEmployees() {
 }
 
 // * converted
-// TODO - add POST
 async function handleAddEmployee() {
 	console.log(`handleAddEmployee`);
 	let roles = [];
@@ -106,33 +119,39 @@ async function handleAddEmployee() {
 		.prompt([
 			{
 				type: 'input',
-				name: 'firstName',
+				name: 'first_name',
 				message: `What is the employee's first name?`,
 			},
 			{
 				type: 'input',
-				name: 'lastName',
+				name: 'last_name',
 				message: `What is the employee's last name?`,
 			},
 			{
 				type: 'list',
-				name: 'employeeRole',
+				name: 'role',
 				message: `What is the employee's role?`,
 				choices: roles,
 			},
 			{
 				type: 'list',
-				name: 'employeeManager',
+				name: 'manager',
 				message: `Who is the employee's manager?`,
 				choices: managers,
 			},
 		])
-		.then((answer) => console.log(answer))
+		.then((answer) => {
+			const managerIndex = managers.findIndex((element) => element === answer.manager);
+			manager_id = managerIndex + 1;
+			const roleIndex = roles.findIndex((element) => element === answer.role);
+			role_id = roleIndex + 1;
+			postEmployee(answer.first_name, answer.last_name, role_id, manager_id);
+		})
 		.then(() => chooseTask());
 }
 
 // TODO convert
-// TODO add POST
+// TODO add PUT
 handleUpdateEmployeeRole = () => {
 	console.log(`handleUpdateEmployeeRole`);
 };
@@ -144,15 +163,7 @@ async function handleViewAllRoles() {
 	console.log(table);
 }
 
-function postRole(title, salary, department_id) {
-  const sql = `INSERT INTO roles (title, salary, department_id)
-               VALUES (?, ?, ?)`;
-	const params = [title, salary, department_id];
-  db.query(sql, params)
-}
-
 // * converted
-// TODO add POST
 async function handleAddRole() {
 	console.log(`handleAddRole`);
 	let departments = [];
@@ -179,16 +190,10 @@ async function handleAddRole() {
 			},
 		])
 		.then((answer) => {
-      console.log(`title >>>`, answer.title);
-      console.log(`salary >>>`, answer.salary);
-      console.log(`department >>>`, answer.department);
-      console.log(departments)
-      const index = departments.findIndex((element) => element === answer.department)
-      department_id = index + 1
-      console.log(`department index `, index)
-      console.log(`department_id = `, department_id)
-      postRole(answer.title, answer.salary, department_id);
-    })
+			const index = departments.findIndex((element) => element === answer.department);
+			department_id = index + 1;
+			postRole(answer.title, answer.salary, department_id);
+		})
 		.then(() => chooseTask());
 }
 
@@ -196,7 +201,7 @@ async function handleAddRole() {
 async function handleViewAllDepartments() {
 	console.log(`handleViewAllDepartments`);
 	table = await queryAllDepartments();
-  console.log(table)
+	console.log(table);
 }
 
 // TODO convert
@@ -256,6 +261,7 @@ routeTask = (answer) => {
 	}
 };
 
+// INITIAL PROMPT ========== ========== ========== ========== ==========
 chooseTask = () => {
 	inquirer
 		.prompt([
