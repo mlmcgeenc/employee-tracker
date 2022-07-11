@@ -1,7 +1,6 @@
 
 # Employee Tracker
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-- Live app - https://hydro-eds-85364.herokuapp.com/notes
 
 ## Table of Contents
 * [Description](#Description)
